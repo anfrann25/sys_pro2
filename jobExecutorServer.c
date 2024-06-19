@@ -24,7 +24,18 @@ typedef struct Server {
     int State;
 } Server;
 
+typedef struct {
+    int command_type;
+    char cmd[256];
+} Command;
+
+void deserialize(char *buffer, Command *command) {
+    memcpy(command, buffer, sizeof(Command));
+}
+
 Server server = {1, 0, 0, 1};
+
+
 
 pthread_t thread_pool[MAX_THREADS];
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -80,12 +91,15 @@ void *worker_thread(void *arg) {
 void *controller_thread(void *arg) {
     int new_socket = *((int *)arg);
     free(arg);
-    char buffer[1024] = {0};
-    read(new_socket, buffer, 1024);
+    char buffer[sizeof(Command)] = {0};
+    read(new_socket, buffer,sizeof(Command));
+    Command command;
+    deserialize(buffer,&command);
 
-    if (strncmp(buffer, "issueJob:", 9) == 0) {
+    if (command.command_type == 1) {
+        printf("GAMHSETA E EGINE SOU LEW\n");
         Job new_job;
-        snprintf(new_job.command, sizeof(new_job.command), "%s", buffer + 9);
+        snprintf(new_job.command, sizeof(new_job.command), "%s",command.cmd);
         create_job_id(rear, new_job.jobID);
         new_job.RUNNING = 0;
         pthread_mutex_lock(&mutex);
