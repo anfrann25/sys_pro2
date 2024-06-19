@@ -1,0 +1,22 @@
+CC = gcc
+CFLAGS = -Wall -pthread
+TARGETS = jobCommander jobExecutorServer
+
+all: $(TARGETS)
+
+jobCommander: jobCommander.c
+	$(CC) $(CFLAGS) -o jobCommander jobCommander.c
+
+jobExecutorServer: jobExecutorServer.c
+	$(CC) $(CFLAGS) -o jobExecutorServer jobExecutorServer.c
+
+clean:
+	rm -f $(TARGETS)
+
+run_server: jobExecutorServer
+	./jobExecutorServer
+
+run_commander: jobCommander
+	./jobCommander
+
+.PHONY: all clean run_server run_commander
